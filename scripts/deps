@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -euo pipefail
+
+GO_VERSION="1.17.5"
+AWS_AUTH_VERSION="1.21.2"
+KUBECTL_VERSION="1.21.0"
+
+# check if docker is installed. Its too ambiquous to install it as part of the script
+# thats why the user must install it manually
+docker -v >/dev/null 2>&1 || {
+  echo "Docker is not installed. Please install it first. I.e Docker Destop when using WSL2."
+  exit 1
+}
+
+# download all things into this temp dir
+TEMP_DIR=$(mktemp -d)
+
+# remove temp dir on error
+trap "EC=\$?; rm -rf \$TEMP_DIR; exit \$EC" EXIT INT TERM
+
+# python packages
+python3 -m pip install docker-compose ansible --user --upgrade
+
+# hashicorp repostory
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+
+# aws cli and aws-iam-authenticator
+curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "$TEMP_DIR/awscliv2.zip"
+unzip "$TEMP_DIR/awscliv2.zip" -d "$TEMP_DIR"
+sudo "$TEMP_DIR/aws/install" --update
+
+curl -fsSL "https://amazon-eks.s3.us-west-2.amazonaws.com/$AWS_AUTH_VERSION/2021-07-05/bin/linux/amd64/aws-iam-authenticator" -o "$TEMP_DIR/aws-iam-authenticator"
+sudo chmod +x "$TEMP_DIR/aws-iam-authenticator"
+sudo mv "$TEMP_DIR/aws-iam-authenticator" /usr/local/bin/
+
+# helm
+curl -fsSL "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3" | bash
+
+# kubectl
+curl -sL "https://dl.k8s.io/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl" -o "$TEMP_DIR/kubectl"
+sudo install -o root -g root -m 0755 "$TEMP_DIR/kubectl" /usr/local/bin/kubectl
+
+# apt packages
+sudo apt-get update && sudo apt-get install packer terraform jq
+
+# go
+curl -fsSL "https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz" -o "$TEMP_DIR/go.tar.gz"
+sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf "$TEMP_DIR/go.tar.gz"
+
+# clean up
+rm -rf "$TEMP_DIR"

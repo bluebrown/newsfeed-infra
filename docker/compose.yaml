@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+
+  statics:
+    image: ${REGISTRY_FQDN}/${REGISTRY_NS}/statics:0.1.0
+    build:
+      context: ../infra-problem/front-end/public
+      dockerfile: ../../../docker/statics/Dockerfile
+    ports:
+      - "8000:8080"
+
+  front-end:
+    image: ${REGISTRY_FQDN}/${REGISTRY_NS}/front-end:0.1.0
+    build:
+      &build
+      context: ../infra-problem
+      dockerfile: ../docker/generic/Dockerfile
+      args:
+        TARGET: front-end
+    environment:
+      STATIC_URL: http://localhost:8000
+      QUOTE_SERVICE_URL: http://quotes:8080
+      NEWSFEED_SERVICE_URL: http://newsfeed:8080
+      NEWSFEED_SERVICE_TOKEN: null
+    ports:
+      - "8080:8080"
+
+  quotes:
+    image: ${REGISTRY_FQDN}/${REGISTRY_NS}/quotes:0.1.0
+    build:
+      <<: *build
+      args:
+        TARGET: quotes
+
+  newsfeed:
+    image: ${REGISTRY_FQDN}/${REGISTRY_NS}/newsfeed:0.1.0
+    build:
+      <<: *build
+      args:
+        TARGET: newsfeed

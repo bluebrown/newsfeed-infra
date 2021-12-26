@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -euo pipefail
+
+KUBECONFIG="$(ls terraform/kubernetes/cluster/kubeconfig*)"
+LB_DNS_NAME=$(cd terraform/kubernetes/components && terraform output -json | jq -r '.load_balancer_dns.value')
+
+COMMON_FLAGS=(
+  --kubeconfig "$KUBECONFIG"
+  --install
+  --atomic
+  --namespace newsfeed
+  --create-namespace
+)
+
+helm upgrade statics ./helm/charts/generic "${COMMON_FLAGS[@]}" --values ./helm/values/statics.yaml
+
+helm upgrade newsfeed ./helm/charts/generic "${COMMON_FLAGS[@]}" --values ./helm/values/newsfeed.yaml
+
+helm upgrade quotes ./helm/charts/generic "${COMMON_FLAGS[@]}" --values ./helm/values/quotes.yaml
+
+helm upgrade front-end ./helm/charts/generic "${COMMON_FLAGS[@]}" --values ./helm/values/front-end.yaml \
+  --set env.secret.NEWSFEED_SERVICE_TOKEN="$NEWSFEED_SERVICE_TOKEN" \
+  --set env.normal.STATIC_URL="http://$LB_DNS_NAME/statics"

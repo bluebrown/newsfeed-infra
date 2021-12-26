@@ -1,0 +1,50 @@
+---
+- name: Setup a java service
+
+  hosts: default
+  become: true
+
+  vars:
+    newsfeed_token: ""
+
+  tasks:
+    - name: Update system
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all apt packages
+      apt:
+        upgrade: dist
+        force_apt_get: yes
+
+    - name: Ensure jre is installed
+      apt:
+        name: openjdk-17-jre-headless
+        state: present
+
+    - name: Copy the jar files to the /usr/share/java directory
+      copy:
+        src: ../infra-problem/build/
+        dest: /usr/share/java/
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Copy the systemd service definition to /etc/systemd/system
+      template:
+        src: java-app.service
+        dest: /etc/systemd/system/java-app.service
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: create the .env file required by the application
+      copy:
+        dest: /usr/share/java/.env
+        content: |
+          NEWSFEED_SERVICE_TOKEN={{ newsfeed_token }}
+
+    - name: Enable the systemd service
+      shell: systemctl enable java-app.service

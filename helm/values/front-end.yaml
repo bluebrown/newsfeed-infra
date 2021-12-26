@@ -1,0 +1,23 @@
+nameOverride: front-end
+
+image:
+  repository: docker.io/bluebrown/front-end
+  pullPolicy: Always
+  tag: 0.1.0
+
+env:
+  normal:
+    APP_PORT: "8080"
+    STATIC_URL: ""
+    QUOTE_SERVICE_URL: http://quotes
+    NEWSFEED_SERVICE_URL: http://newsfeed
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: "*.elb.eu-central-1.amazonaws.com"
+      paths:
+        - path: /
+          pathType: Prefix

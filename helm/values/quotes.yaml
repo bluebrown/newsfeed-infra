@@ -1,0 +1,10 @@
+nameOverride: quotes
+
+image:
+  repository: docker.io/bluebrown/quotes
+  pullPolicy: Always
+  tag: 0.1.0
+
+env:
+  normal:
+    APP_PORT: "8080"

@@ -1,0 +1,17 @@
+nameOverride: front-end
+
+image:
+  repository: docker.io/bluebrown/statics
+  pullPolicy: Always
+  tag: 0.1.0
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  hosts:
+    - host: "*.elb.eu-central-1.amazonaws.com"
+      paths:
+        - path: /statics(/|$)(.*)
+          pathType: Prefix
