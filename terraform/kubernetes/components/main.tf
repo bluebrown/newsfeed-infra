@@ -20,7 +20,7 @@ provider "aws" {
 }
 
 locals {
-  cluster_name = "dev-cluster-42"
+  cluster_name = "dev-cluster"
 }
 
 data "aws_eks_cluster" "eks" {

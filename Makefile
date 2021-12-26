@@ -31,10 +31,6 @@ classic:
 	cd terraform/classic && terraform init && terraform apply \
 		-var ami_id="$(shell jq -r '.builds[-1].artifact_id|split(":")[1]' packer/packer-manifest.json)" \
 		-auto-approve
-	@echo ""
-	@echo "Congratulations! The newsfeed app has been sucesfully deployed."
-	@echo "Visit the front-end on http://$(shell cd terraform/classic && terraform output -json | jq -r '.frontend_dns.value')"
-	@echo ""
 
 images:
 	docker-compose build
@@ -48,10 +44,7 @@ eks-components:
 
 eks-apps:
 	./scripts/release
-	@echo ""
-	@echo "Congratulations! The newsfeed app has been sucesfully deloyed."
-	@echo "Visit the front-end on http://$(shell cd terraform/kubernetes/components && terraform output -json | jq -r '.load_balancer_dns.value')"
-	@echo ""
+	@echo "frontend_url = \"http://$(shell cd terraform/kubernetes/components && terraform output -json | jq -r '.load_balancer_dns.value')\""
 
 clean:
 	./scripts/cleanup
