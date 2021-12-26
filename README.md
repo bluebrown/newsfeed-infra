@@ -82,7 +82,7 @@ The classic deployment, is making use of a custom module to assist with the conf
 
 ```bash
 cd terraform/classic/modules/terraform-aws-rolling-ami-release/tests
-go mod download -v
+go mod download
 go test -timeout 10m
 ```
 
