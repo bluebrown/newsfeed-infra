@@ -23,6 +23,7 @@
       apt:
         name: openjdk-17-jre-headless
         state: present
+        force_apt_get: yes
 
     - name: Copy the jar files to the /usr/share/java directory
       copy:
