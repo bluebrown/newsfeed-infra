@@ -12,7 +12,7 @@ terraform {
 }
 
 locals {
-  cluster_name = "dev-cluster-42"
+  cluster_name = "dev-cluster"
 }
 
 provider "aws" {
