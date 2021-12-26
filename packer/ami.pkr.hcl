@@ -29,6 +29,7 @@ source "amazon-ebs" "ubuntu" {
     Release       = "Latest"
     Base_AMI_Name = "{{ .SourceAMIName }}"
     Extra         = "{{ .SourceAMITags.TagName }}"
+    Example       = "true"
   }
 
 }

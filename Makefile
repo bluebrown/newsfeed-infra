@@ -54,8 +54,6 @@ eks-apps:
 	@echo ""
 
 clean:
-		cd terraform/kubernetes/components && terraform destroy -auto-approve || true
-		cd terraform/kubernetes/cluster && terraform destroy -auto-approve || true
-		cd terraform/classic && terraform destroy -auto-approve || true
+	./scripts/cleanup
 
 .PHONY: help deps apps classic eks-base eks-components eks-apps clean
