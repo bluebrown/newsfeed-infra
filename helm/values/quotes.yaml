@@ -8,3 +8,18 @@ image:
 env:
   normal:
     APP_PORT: "8080"
+
+probes:
+  startup:
+    httpGet:
+      path: /ping
+      port: http
+    initialDelaySeconds: 5
+    failureThreshold: 30
+    periodSeconds: 10
+  liveness:
+    httpGet:
+      path: /ping
+      port: http
+    periodSeconds: 30
+    failureThreshold: 1
